@@ -1,4 +1,4 @@
-name: Deploy Flet as Web Site
+name: Deploy Flet as Web Site Final
 
 on:
   push:
@@ -26,10 +26,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install flet
 
-    - name: Build Web Files (Safe Mode)
+    - name: Ensure Main File Is In Root
       run: |
-        # بناء ملفات الويب مع تمرير مدخل فارغ لمنع تعليق أمر الـ input
-        echo "" | flet build web
+        # إذا كان ملف main.py داخل أي مجلد فرعي، السكريبت راح يجيبه ويخليه بالساحة الرئيسية فوراً
+        find . -name "main.py" -maxdepth 3 -exec cp {} . \; 2>/dev/null || true
+        find . -name "*.txt" -maxdepth 3 -exec cp {} . \; 2>/dev/null || true
+
+    - name: Build Web Files (Safe & Direct)
+      run: |
+        # بناء الموقع مع تغذية أمر الإدخال بمدخل فارغ وتحديد المسار الرئيسي
+        echo "" | flet build web --module-name main
 
     - name: Deploy to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@v4
