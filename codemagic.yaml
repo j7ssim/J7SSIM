@@ -1,15 +1,16 @@
 workflows:
-  android-debug:
+  default-workflow:
     name: Build Android APK
     max_build_duration: 60
     environment:
-      flutter: stable
+      python: 3.10
     scripts:
-      - name: Install dependencies
+      - name: Install Dependencies
         script: |
           pip3 install flet telethon
-      - name: Build Flet APK
+      - name: Build APK
         script: |
+          # تأكد أن ملفك الرئيسي اسمه main.py
           flet build apk --project main.py
     artifacts:
-      - build/apk/android/app-release.apk
+      - build/apk/app-release.apk
