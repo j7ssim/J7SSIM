@@ -1,0 +1,7 @@
+app:
+  name: "منظومة أبو الجوج"
+  package: "com.abualjouj.system"
+  main_module: "main"
+android:
+  permissions:
+    - android.permission.INTERNET
