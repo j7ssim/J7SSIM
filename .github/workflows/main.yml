@@ -1,4 +1,4 @@
-name: Build Flet APK via Flutter
+name: Build Flet APK via Flutter Ultimate
 
 on:
   push:
@@ -36,10 +36,16 @@ jobs:
 
     - name: Prepare Clean Flet Project
       run: |
-        # إنشاء مشروع فليت جديد ونظيف تماماً في مجلد مستقل لمنع أي تعارض
+        # إنشاء مشروع فليت جديد ونظيف تماماً
         flet create flet_project --template app
-        # نسخ ملفات الكود والبيانات مالتك إلى داخل مجلد المشروع الجديد
-        cp -r main.py processed_users.txt flet_project/ 2>/dev/null || cp main.py flet_project/
+        
+        # البحث عن ملف main.py وين ما جان بالمستودع ونسخه للمكان الصحيح
+        find . -name "main.py" -not -path "*/flet_project/*" -exec cp {} flet_project/src/ \; 2>/dev/null || true
+        find . -name "main.py" -not -path "*/flet_project/*" -exec cp {} flet_project/ \; 2>/dev/null || true
+        
+        # نسخ أي ملفات نصية أو تابعة إن وجدت
+        find . -name "*.txt" -not -path "*/flet_project/*" -exec cp {} flet_project/src/ \; 2>/dev/null || true
+        find . -name "*.txt" -not -path "*/flet_project/*" -exec cp {} flet_project/ \; 2>/dev/null || true
 
     - name: Accept Android Licenses
       run: |
@@ -47,7 +53,6 @@ jobs:
 
     - name: Build APK via Flutter Direct
       run: |
-        # الدخول للمجلد النظيف اللي يحتوي على pubspec.yaml والبناء من داخله
         cd flet_project
         flutter build apk --release
 
