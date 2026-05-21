@@ -34,12 +34,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install flet
 
+    - name: Accept Android Licenses
+      run: |
+        yes | sdkmanager --licenses || true
+
     - name: Build APK
       run: |
-        flet build apk
-
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: flet-app-apk
-        path: build/apk/*.apk
+        echo "y" | flet build apk --no-interactive || flet build apk
