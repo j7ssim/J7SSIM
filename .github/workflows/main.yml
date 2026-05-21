@@ -1,4 +1,4 @@
-name: Deploy Flet as Web Site Final
+name: Deploy Flet as Web Site Final Fix
 
 on:
   push:
@@ -26,16 +26,17 @@ jobs:
         python -m pip install --upgrade pip
         pip install flet
 
-    - name: Ensure Main File Is In Root
+    - name: Force Rename Python File to main.py
       run: |
-        # إذا كان ملف main.py داخل أي مجلد فرعي، السكريبت راح يجيبه ويخليه بالساحة الرئيسية فوراً
-        find . -name "main.py" -maxdepth 3 -exec cp {} . \; 2>/dev/null || true
-        find . -name "*.txt" -maxdepth 3 -exec cp {} . \; 2>/dev/null || true
+        # السكريبت راح يبحث عن أول ملف بايثون يلقاه بالمستودع مالتك ويسوي منه نسخة باسم main.py بالوجه
+        find . -maxdepth 2 -name "*.py" ! -name "main.py" -exec cp {} ./main.py \; -quit || true
+        # نسخ ملفات التكست المرافقة إن وجدت
+        find . -maxdepth 2 -name "*.txt" -exec cp {} . \; 2>/dev/null || true
 
-    - name: Build Web Files (Safe & Direct)
+    - name: Build Web Files
       run: |
-        # بناء الموقع مع تغذية أمر الإدخال بمدخل فارغ وتحديد المسار الرئيسي
-        echo "" | flet build web --module-name main
+        # بناء الموقع بأمر صامت ومباشر بعد تجهيز ملف main.py
+        echo "" | flet build web
 
     - name: Deploy to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@v4
