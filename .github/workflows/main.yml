@@ -1,4 +1,4 @@
-name: Build Flet APK
+name: Build Flet APK via Flutter
 
 on:
   push:
@@ -33,11 +33,19 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install flet
+        # تهيئة مجلد الفلاتر وتجهيز ملفات البناء صامتة
+        flet create . --template app || true
 
     - name: Accept Android Licenses
       run: |
         yes | sdkmanager --licenses || true
 
-    - name: Build APK
+    - name: Build APK via Flutter Direct
       run: |
-        echo "y" | flet build apk --no-interactive || flet build apk
+        flutter build apk --release
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: flet-app-apk
+        path: build/app/outputs/flutter-apk/app-release.apk
