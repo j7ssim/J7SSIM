@@ -1,17 +1,16 @@
 workflows:
-  default-workflow:
+  android-build:
     name: Build Android APK
+    instance_type: mac_mini_m2
     max_build_duration: 60
     environment:
-      python: 3.10
+      flutter: stable
     scripts:
-      - name: Install dependencies
+      - name: Set up Python and Flet
         script: |
-          pip3 install --upgrade pip
           pip3 install flet telethon cryptography pysocks
       - name: Build Flet APK
         script: |
-          # نستخدم أمر البناء مع التأكد من تحديد الملف الرئيسي
           flet build apk --project main.py
     artifacts:
-      - build/apk/app-release.apk
+      - build/apk/android/app-release.apk
