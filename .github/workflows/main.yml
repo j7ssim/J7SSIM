@@ -1,4 +1,4 @@
-name: Build Flet APK via Custom Flutter Project
+name: Build Flet APK Ultimate Fix
 
 on:
   push:
@@ -34,65 +34,40 @@ jobs:
         python -m pip install --upgrade pip
         pip install flet
 
-    - name: Force Create Valid Flutter Structure
+    - name: Generate Official Flutter Android Project
       run: |
-        # صنع مجلد المشروع يدوياً بدون منة من أداة فليت
-        mkdir -p flet_project/lib
+        # إنشاء مجلد مستقل ونظيف تماماً
+        mkdir -p clean_project
+        cd clean_project
         
-        # كتابة ملف pubspec.yaml الجذري والمطلوب للبناء مباشرة داخل السيرفر
-        cat << 'EOF' > flet_project/pubspec.yaml
-        name: flet_app
-        description: A new Flutter project.
-        publish_to: 'none'
-        version: 1.0.0+1
-        environment:
-          sdk: '>=3.0.0 <4.0.0'
-        dependencies:
-          flutter:
-            sdk: flutter
+        # أمر فلاتر الرسمي لصنع بيئة أندرويد كاملة بدون نقص ملفات
+        flutter create . --org com.j7ssim.app --project-name flet_app --platforms=android
+        
+        # كتابة إعدادات فليت داخل ملف الـ pubspec.yaml الرسمي
+        cat << 'EOF' >> pubspec.yaml
           flet: ^0.26.0
-        dev_dependencies:
-          flutter_test:
-            sdk: flutter
-          flutter_lints: ^3.0.0
-        flutter:
-          uses-material-design: true
-          assets:
-            - assets/
         EOF
 
-        # صنع ملف الـ main.dart الأساسي للفلاتر بالخلفية
-        cat << 'EOF' > flet_project/lib/main.dart
-        import 'package:flutter/material.dart';
-        void main() => runApp(const MyApp());
-        class MyApp extends StatelessWidget {
-          const MyApp({super.key});
-          @override
-          Widget build(BuildContext context) {
-            return const MaterialApp(home: Scaffold(body: Center(child: Text('Flet App'))));
-          }
-        }
-        EOF
-
-        # البحث عن كود الـ main.py مالتك الأصلي ونسخه للمجلد
-        find . -name "main.py" -not -path "*/flet_project/*" -exec cp {} flet_project/ \; 2>/dev/null || true
-        # نسخ ملفات المستخدمين والمستندات إن وجدت
-        find . -name "*.txt" -not -path "*/flet_project/*" -exec cp {} flet_project/ \; 2>/dev/null || true
+    - name: Copy Python Code Files
+      run: |
+        # نسخ كودك والملفات التابعة لداخل المجلد النظيف
+        find . -name "main.py" -not -path "*/clean_project/*" -exec cp {} clean_project/ \; 2>/dev/null || true
+        find . -name "*.txt" -not -path "*/clean_project/*" -exec cp {} clean_project/ \; 2>/dev/null || true
 
     - name: Accept Android Licenses
       run: |
         yes | sdkmanager --licenses || true
 
-    - name: Build APK Final Direct
+    - name: Build APK Tank Mode
       run: |
-        cd flet_project
-        # تحميل المكاتب يدوياً للتأكد
+        cd clean_project
+        # تحديث المكاتب
         flutter pub get
-        # أمر البناء الرسمي الصامت
+        # بناء الـ APK الرسمي
         flutter build apk --release
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: flet-app-apk
-        path: flet_project/build/app/outputs/flutter-apk/app-release.apk
+        path: clean_project/build/app/outputs/flutter-apk/app-release.apk
